@@ -4,7 +4,7 @@ Projeto simples de conversão de moedas criado em HTML, CSS e JavaScript.
 
 ## Sobre
 
-<img width="1080" height="1080" alt="projeto conversor" src="https://github.com/user-attachments/assets/e3b8cb14-1c33-4668-97b9-ca23f3f35081" />
+<img width="720" height="720" alt="projeto conversor" src="https://github.com/user-attachments/assets/e3b8cb14-1c33-4668-97b9-ca23f3f35081" />
 
 
 Este projeto converte valores entre Real e três moedas estrangeiras:
