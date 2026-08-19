@@ -1,5 +1,7 @@
 # Conversor de Valor
 
+🔗 **[Abrir o projeto](https://conversor-de-valor.vercel.app)**
+
 Projeto simples de conversão de moedas criado em HTML, CSS e JavaScript.
 
 ## Sobre
@@ -53,3 +55,11 @@ O site busca cotações reais usando a API `economia.awesomeapi.com.br` e armaze
 
 - Caso a API de cotações esteja fora do ar, o aplicativo exibirá um alerta informando que não foi possível carregar as cotações.
 - O cache de cotações dura 24 horas e é renovado automaticamente quando expirado.
+
+## Licenca
+
+Distribuido sob a licenca MIT. Veja [`LICENSE`](LICENSE) para mais detalhes.
+
+## Autor
+
+**Pedro Augusto Darolt** - [GitHub](https://github.com/pedrozxx) - [LinkedIn](https://www.linkedin.com/in/pedro-darolt/) - pedrocod.dev@gmail.com
