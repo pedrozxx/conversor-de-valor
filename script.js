@@ -16,17 +16,40 @@ let rates = {
   GBP: null,
 }
 
-async function loadRates() {
-  const cachedRates = localStorage.getItem(CACHE_KEY)
-  const cachedTime = localStorage.getItem(CACHE_TIME_KEY)
+function isValidRates(value) {
+  return value && ["USD", "EUR", "GBP"].every(
+    (code) => Number.isFinite(value[code]) && value[code] > 0
+  )
+}
 
-  if (cachedRates && cachedTime) {
-    const cacheAge = Date.now() - Number(cachedTime)
+function parseRate(value) {
+  if (typeof value !== "string" && typeof value !== "number") return NaN
+  return Number(value)
+}
 
-    if (cacheAge < CACHE_DURATION) {
-      rates = JSON.parse(cachedRates)
-      return
+function readCachedRates() {
+  try {
+    const cachedRates = JSON.parse(localStorage.getItem(CACHE_KEY))
+    const cachedTime = Number(localStorage.getItem(CACHE_TIME_KEY))
+    const cacheAge = Date.now() - cachedTime
+
+    if (isValidRates(cachedRates) && Number.isFinite(cachedTime) &&
+        cacheAge >= 0 && cacheAge < CACHE_DURATION) {
+      return cachedRates
     }
+  } catch {
+    // Cache inválido ou armazenamento bloqueado não impede a consulta à API.
+  }
+  return null
+}
+
+async function loadRates() {
+  button.disabled = true
+  const cachedRates = readCachedRates()
+  if (cachedRates) {
+    rates = cachedRates
+    button.disabled = false
+    return
   }
 
   try {
@@ -40,14 +63,22 @@ async function loadRates() {
 
     const data = await response.json()
 
-    rates = {
-      USD: Number(data.USDBRL.bid),
-      EUR: Number(data.EURBRL.bid),
-      GBP: Number(data.GBPBRL.bid),
+    const fetchedRates = {
+      USD: parseRate(data?.USDBRL?.bid),
+      EUR: parseRate(data?.EURBRL?.bid),
+      GBP: parseRate(data?.GBPBRL?.bid),
     }
-
-    localStorage.setItem(CACHE_KEY, JSON.stringify(rates))
-    localStorage.setItem(CACHE_TIME_KEY, String(Date.now()))
+    if (!isValidRates(fetchedRates)) {
+      throw new Error("Cotações inválidas na resposta da API")
+    }
+    rates = fetchedRates
+    try {
+      localStorage.setItem(CACHE_KEY, JSON.stringify(rates))
+      localStorage.setItem(CACHE_TIME_KEY, String(Date.now()))
+    } catch {
+      // O cache é opcional; a cotação válida continua disponível em memória.
+    }
+    button.disabled = false
   } catch (error) {
     console.log(error)
     alert("Não foi possível carregar as cotações. Tente novamente mais tarde.")
@@ -55,41 +86,47 @@ async function loadRates() {
 }
 
 amount.addEventListener("input", () => {
-  const hasCharactersRegex = /\D+/g
-  amount.value = amount.value.replace(hasCharactersRegex, "")
+  footer.classList.remove("show-result")
+})
+currency.addEventListener("change", () => {
+  footer.classList.remove("show-result")
 })
 
 form.onsubmit = (event) => {
   event.preventDefault()
+  footer.classList.remove("show-result")
 
-  if (!amount.value || Number(amount.value) <= 0) {
-    alert("Valor inválido. Por favor, insira um número válido.")
+  const value = amount.value.trim()
+  const parsedAmount = Number(value.replace(",", "."))
+  if (!/^\d+(?:[.,]\d{1,2})?$/.test(value) ||
+      !Number.isFinite(parsedAmount) || parsedAmount <= 0) {
+    alert("Insira um valor positivo com até duas casas decimais, sem separador de milhar.")
     return
   }
 
-  if (!rates.USD || !rates.EUR || !rates.GBP) {
+  if (!isValidRates(rates)) {
     alert("As cotações ainda não foram carregadas.")
     return
   }
 
   switch (currency.value) {
     case "USD":
-      convertToBRL(Number(amount.value), rates.USD, "US$")
+      convertToBRL(parsedAmount, rates.USD, "US$")
       break
     case "EUR":
-      convertToBRL(Number(amount.value), rates.EUR, "€")
+      convertToBRL(parsedAmount, rates.EUR, "€")
       break
     case "GBP":
-      convertToBRL(Number(amount.value), rates.GBP, "£")
+      convertToBRL(parsedAmount, rates.GBP, "£")
       break
     case "BRL-USD":
-      convertFromBRL(Number(amount.value), rates.USD, "US$")
+      convertFromBRL(parsedAmount, rates.USD, "US$")
       break
     case "BRL-EUR":
-      convertFromBRL(Number(amount.value), rates.EUR, "€")
+      convertFromBRL(parsedAmount, rates.EUR, "€")
       break
     case "BRL-GBP":
-      convertFromBRL(Number(amount.value), rates.GBP, "£")
+      convertFromBRL(parsedAmount, rates.GBP, "£")
       break
     default:
       alert("Selecione uma moeda.")
@@ -108,7 +145,7 @@ function convertToBRL(amountValue, price, symbol) {
 function convertFromBRL(amountValue, price, symbol) {
   const total = amountValue / price
 
-  description.textContent = `R$ 1 = ${symbol} ${price.toFixed(2)}`
+  description.textContent = `R$ 1 = ${symbol} ${(1 / price).toFixed(2)}`
   result.textContent = `${symbol} ${total.toFixed(2)}`
   footer.classList.add("show-result")
 }

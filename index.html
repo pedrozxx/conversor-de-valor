@@ -4,14 +4,14 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-    <title>Conversor de Valor — Dólar, Euro e Libra em tempo real</title>
+    <title>Conversor de moedas — Dólar, Euro e Libra</title>
     <meta name="description" content="Conversor de moedas com cotação real via API e cache de 24h. Converte entre Real, Dólar, Euro e Libra. Feito em JavaScript puro por Pedro Augusto Darolt." />
     <meta name="author" content="Pedro Augusto Darolt" />
     <link rel="canonical" href="https://conversor-de-valor.vercel.app/" />
     <meta property="og:type" content="website" />
     <meta property="og:locale" content="pt_BR" />
     <meta property="og:url" content="https://conversor-de-valor.vercel.app/" />
-    <meta property="og:title" content="Conversor de Valor — Dólar, Euro e Libra em tempo real" />
+    <meta property="og:title" content="Conversor de moedas — Dólar, Euro e Libra" />
     <meta property="og:description" content="Conversor de moedas com cotação real via API e cache de 24h. Converte entre Real, Dólar, Euro e Libra. Feito em JavaScript puro por Pedro Augusto Darolt." />
     <meta property="og:image" content="https://conversor-de-valor.vercel.app/img/dinheiro.png" />
     <meta name="twitter:card" content="summary_large_image" />
@@ -34,7 +34,7 @@ rel="stylesheet"
 <main>
 <form id="form">
 <label for="amount">valor</label>
-<input type="text" name="amount" id="amount" placeholder="0" required />
+<input type="text" name="amount" id="amount" inputmode="decimal" placeholder="Ex.: 1250,50" title="Valor positivo com até duas casas decimais, sem separador de milhar" required />
 
 <label for="currency">moeda</label>
 <select name="currency" id="currency" required>
